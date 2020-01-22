@@ -1,0 +1,21 @@
+#!/usr/bin/python3
+import os
+def main():
+	os.system("rm -rf D*")
+	os.system("rm -rf splunkforwarder")
+	os.system("wget --no-check-certificate splunkforwarder-8.0.1-6db836e2fb9e-Linux-x86_64.tgz 'https://www.splunk.com/bin/splunk/DownloadActivityServlet?architecture=x86_64&platform=linux&version=8.0.1&product=universalforwarder&filename=splunkforwarder-8.0.1-6db836e2fb9e-Linux-x86_64.tgz&wget=true'")
+	os.system("tar -xvzf 'DownloadActivityServlet?architecture=x86_64&platform=linux&version=8.0.1&product=universalforwarder&filename=splunkforwarder-8.0.1-6db836e2fb9e-Linux-x86_64.tgz&wget=true'")
+	os.system("./splunkforwarder/bin/splunk start --accept-license --answer-yes --auto-ports --seed-passwd Password@123")
+	os.system("./splunkforwarder/bin/splunk enable boot-start")
+	os.system("./splunkforwarder/bin/splunk add forward-server 192.168.125.142:9997 -auth admin:Password@123")
+	os.system("./splunkforwarder/bin/splunk add monitor '/var/log/auth.log' -sourcetype 'auth.log'" )
+	os.system("./splunkforwarder/bin/splunk list forward-server")
+	os.system("./splunkforwarder/bin/splunk set deploy-poll 192.168.125.142:8000")
+	with open("splunkforwarder/etc/system/local/inputs.conf", "a") as myfile:
+		myfile.write("[monitor:///var/log/syslog]\nsourcetype=syslog")
+	os.system("./splunkforwarder/bin/splunk restart")
+
+
+
+if __name__=='__main__':
+	main()
